@@ -2,6 +2,9 @@
 
 Created to simplify the deployment process using a telegram bot
 
+## Example
+![UI example](./girl.png)
+
 ## Build image
 1. `docker build -t enthusiast_girl:latest .`
 2. `docker tag enthusiast_girl:latest quay.ecpdss.net/k_popov/enthusiast_girl:0.0.8`
