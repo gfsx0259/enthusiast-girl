@@ -9,4 +9,6 @@ services:
       - ~/.ssh:/root/.ssh:ro
     environment:
       - TELEGRAM_APITOKEN=insertTokenHere
+      - SDLC_USER=sdlc
+      - SDLC_PASSWORD=insertPasswordHere
 
