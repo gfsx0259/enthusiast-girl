@@ -3,12 +3,14 @@ version: "3.8"
 
 services:
   bot-girl:
-    container_name: bot-girl
     image: quay.ecpdss.net/k_popov/enthusiast_girl:0.0.9
     volumes:
       - ~/.ssh:/root/.ssh:ro
+      - /var/run/docker.sock:/var/run/docker.sock:rw
     environment:
       - TELEGRAM_APITOKEN=insertTokenHere
       - SDLC_USER=sdlc
       - SDLC_PASSWORD=insertPasswordHere
+      - QUAY_USER=platform+pp
+      - QUAY_PASSWORD=insertPasswordHere
 

@@ -1,8 +1,10 @@
 package processor
 
 import (
+	"deployRunner/command"
+	"deployRunner/command/build"
 	"deployRunner/command/deploy"
-	"deployRunner/command/image"
+	"deployRunner/command/release"
 	"fmt"
 	telegramClient "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"regexp"
@@ -10,8 +12,11 @@ import (
 )
 
 const (
-	DeployCommandRegexp string = `^/stage (api|spa):(\d{1,4}\.\d{1,4}\.\d{1,4})$`
-	ImageCommandRegexp  string = `^/image (api|spa):([\.\d\w-]+)$`
+	DeployCommandRegexp string = `^/deploy (stage|prod) (api|spa)#([\.\d\w-]+)$`
+	ImageCommandRegexp  string = `^/image (build|release) (api|spa)#([\.\d\w-]+)$`
+	ActionBuild         string = "build"
+	ActionRelease       string = "release"
+	EnvProd             string = "prod"
 )
 
 type Processor struct {
@@ -27,42 +32,68 @@ func (p *Processor) Process(message *telegramClient.Message) error {
 	case strings.HasPrefix(message.Text, "/image"):
 		expression, _ := regexp.Compile(ImageCommandRegexp)
 		if !expression.MatchString(message.Text) {
-			p.message(message.Chat.ID, "Can`t understand image command")
+			p.message(message.Chat.ID, fmt.Sprintf("Can`t understand `image` command, use format: %s", expression.String()))
 			return nil
 		}
 
 		arguments := expression.FindAllStringSubmatch(message.Text, -1)
 
-		command := image.New(arguments[0][1], arguments[0][2])
+		action := arguments[0][1]
+		app := arguments[0][2]
+		tag := arguments[0][3]
 
-		if command.Run() == nil {
-			p.message(message.Chat.ID, "Image building was triggered successfully, please wait notification")
+		var cmd command.Command
+		var successMessage string
+
+		switch action {
+		case ActionBuild:
+			cmd = build.New(app, tag)
+			successMessage = "Image building started, please wait"
+		case ActionRelease:
+			cmd = release.New(app, tag)
+			successMessage = fmt.Sprintf("Make final tag %s for %s application", command.ResolveFinalTag(tag), app)
+		}
+
+		if err := cmd.Run(); err == nil {
+			p.message(message.Chat.ID, successMessage)
 		} else {
-			p.message(message.Chat.ID, "Can`t trigger image building")
+			p.message(message.Chat.ID, fmt.Sprintf("Can`t trigger `image` command: %s", err.Error()))
 		}
 
 		return nil
-	case strings.HasPrefix(message.Text, "/stage"):
+	case strings.HasPrefix(message.Text, "/deploy"):
 		expression, _ := regexp.Compile(DeployCommandRegexp)
 		if !expression.MatchString(message.Text) {
-			p.message(message.Chat.ID, "Can`t understand deploy command")
+			p.message(message.Chat.ID, fmt.Sprintf("Can`t understand `deploy` command, use format %s", expression.String()))
 			return nil
 		}
 
 		arguments := expression.FindAllStringSubmatch(message.Text, -1)
 
-		command := deploy.New(arguments[0][1], arguments[0][2])
+		env := p.normalizeEnvironment(arguments[0][1])
+		app := arguments[0][2]
+		tag := arguments[0][3]
 
-		if commandError := command.Run(); commandError == nil {
-			p.message(message.Chat.ID, fmt.Sprintf("New tag %s for %s application successfully applied", arguments[0][2], arguments[0][1]))
+		cmd := deploy.New(app, tag, env)
+
+		if err := cmd.Run(); err == nil {
+			p.message(message.Chat.ID, fmt.Sprintf("Deploy for application %s with tag %s runned successfully", app, tag))
 		} else {
-			p.message(message.Chat.ID, commandError.Error())
+			p.message(message.Chat.ID, fmt.Sprintf("Can`t trigger `image` command: %s", err.Error()))
 		}
 
 		return nil
 	default:
 		return nil
 	}
+}
+
+func (p *Processor) normalizeEnvironment(env string) string {
+	if env == EnvProd {
+		return "prod-fi1"
+	}
+
+	return env
 }
 
 func (p *Processor) message(chatId int64, message string) {

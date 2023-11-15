@@ -12,7 +12,7 @@ RUN go build -o ./bin/app ./main.go
 
 FROM alpine as runner
 
-RUN apk --no-cache add bash git openssh-client kustomize
+RUN apk --no-cache add bash git openssh-client kustomize docker
 
 COPY --from=builder /usr/local/src/bin/app /
 

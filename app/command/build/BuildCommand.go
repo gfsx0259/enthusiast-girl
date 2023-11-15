@@ -1,10 +1,12 @@
-package image
+package build
 
 import (
 	"deployRunner/command"
 	"deployRunner/executor"
+	"errors"
 	"fmt"
 	"os"
+	"strings"
 )
 
 const (
@@ -23,16 +25,18 @@ func New(application string, tag string) Command {
 }
 
 func (c Command) Run() error {
-	user := os.Getenv("SDLC_USER")
-	password := os.Getenv("SDLC_PASSWORD")
-
-	crumb, err := executor.Execute(fmt.Sprintf(GetCrumbCommand, user, password), "")
+	crumb, err := executor.Execute(fmt.Sprintf(GetCrumbCommand, os.Getenv("SDLC_USER"), os.Getenv("SDLC_PASSWORD")), "")
 	if err != nil {
 		return err
 	}
 
-	if _, err = executor.Execute(fmt.Sprintf(TriggerJobCommand, c.params.Application, c.params.Tag, crumb), ""); err != nil {
+	response, err := executor.Execute(fmt.Sprintf(TriggerJobCommand, c.params.Application, c.params.Tag, crumb), "")
+	if err != nil {
 		return err
+	}
+
+	if strings.Contains(response, "404") {
+		return errors.New("job does not exist")
 	}
 
 	return nil
