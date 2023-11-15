@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	GetCrumbCommand   string = "wget -q --auth-no-challenge --user %s --password %s --output-document - 'https://ci.platformtests.net/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,\":\",//crumb)'"
+	GetCrumbCommand   string = "curl -u %s:%s -s \"https://ci.platformtests.net/crumbIssuer/api/xml\" | xmllint --format --xpath \"concat(//crumbRequestField,':',//crumb)\" -"
 	TriggerJobCommand string = "curl -I -X POST https://sdlc:113ebce2c260e9c6137832606f7a305e06@ci.platformtests.net/job/ecommpay/job/pp/job/concept-%s/view/tags/job/%s/build -H \"%s\""
 )
 
