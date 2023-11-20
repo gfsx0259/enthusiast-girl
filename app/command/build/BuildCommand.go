@@ -2,7 +2,6 @@ package build
 
 import (
 	"deployRunner/command"
-	"deployRunner/executor"
 	"errors"
 	"fmt"
 	"os"
@@ -25,12 +24,12 @@ func New(application string, tag string) Command {
 }
 
 func (c Command) Run() error {
-	crumb, err := executor.Execute(fmt.Sprintf(GetCrumbCommand, os.Getenv("SDLC_USER"), os.Getenv("SDLC_PASSWORD")), "")
+	crumb, err := command.Execute(fmt.Sprintf(GetCrumbCommand, os.Getenv("SDLC_USER"), os.Getenv("SDLC_PASSWORD")), "")
 	if err != nil {
 		return err
 	}
 
-	response, err := executor.Execute(fmt.Sprintf(TriggerJobCommand, c.params.Application, c.params.Tag, crumb), "")
+	response, err := command.Execute(fmt.Sprintf(TriggerJobCommand, c.params.Application, c.params.Tag, crumb), "")
 	if err != nil {
 		return err
 	}

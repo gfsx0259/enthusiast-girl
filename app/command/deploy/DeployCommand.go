@@ -2,7 +2,6 @@ package deploy
 
 import (
 	"deployRunner/command"
-	"deployRunner/executor"
 	"errors"
 	"fmt"
 )
@@ -32,28 +31,28 @@ func New(application string, tag string, target string) Command {
 func (c Command) Run() error {
 	workdir := fmt.Sprintf(Workdir, c.params.Application, c.target)
 
-	if _, err := executor.Execute(fmt.Sprintf(GitConfigureCommand, GitUser, GitEmail), ""); err != nil {
+	if _, err := command.Execute(fmt.Sprintf(GitConfigureCommand, GitUser, GitEmail), ""); err != nil {
 		return err
 	}
 
-	if _, err := executor.Execute("rm -rf ./okd-pp", ""); err != nil {
+	if _, err := command.Execute("rm -rf ./okd-pp", ""); err != nil {
 		return err
 	}
-	if _, err := executor.Execute(fmt.Sprintf("git clone %s", Repository), ""); err != nil {
-		return err
-	}
-
-	if _, err := executor.Execute(fmt.Sprintf(CustomizeCommand, c.params.Application, c.params.Application, c.params.Tag), workdir); err != nil {
-		return err
-	}
-	if _, err := executor.Execute("git add kustomization.yaml", workdir); err != nil {
+	if _, err := command.Execute(fmt.Sprintf("git clone %s", Repository), ""); err != nil {
 		return err
 	}
 
-	if _, err := executor.Execute(fmt.Sprintf("git commit -m \"%s\"", fmt.Sprintf(CommitMessage, c.params.Application, c.params.Tag)), workdir); err != nil {
+	if _, err := command.Execute(fmt.Sprintf(CustomizeCommand, c.params.Application, c.params.Application, c.params.Tag), workdir); err != nil {
+		return err
+	}
+	if _, err := command.Execute("git add kustomization.yaml", workdir); err != nil {
+		return err
+	}
+
+	if _, err := command.Execute(fmt.Sprintf("git commit -m \"%s\"", fmt.Sprintf(CommitMessage, c.params.Application, c.params.Tag)), workdir); err != nil {
 		return errors.New("tag already applied, nothing to do")
 	}
-	if _, err := executor.Execute("git push -u origin HEAD:master -f", workdir); err != nil {
+	if _, err := command.Execute("git push -u origin HEAD:master -f", workdir); err != nil {
 		return err
 	}
 

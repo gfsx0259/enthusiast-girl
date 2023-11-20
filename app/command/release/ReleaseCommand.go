@@ -2,7 +2,6 @@ package release
 
 import (
 	"deployRunner/command"
-	"deployRunner/executor"
 	"fmt"
 	"os"
 )
@@ -27,19 +26,19 @@ func New(application string, tag string) Command {
 func (c Command) Run() error {
 	finalTag := command.ResolveFinalTag(c.params.Tag)
 
-	if _, err := executor.Execute(fmt.Sprintf(DockerLoginCommand, os.Getenv("QUAY_USER"), os.Getenv("QUAY_PASSWORD")), ""); err != nil {
+	if _, err := command.Execute(fmt.Sprintf(DockerLoginCommand, os.Getenv("QUAY_USER"), os.Getenv("QUAY_PASSWORD")), ""); err != nil {
 		return err
 	}
 
-	if _, err := executor.Execute(fmt.Sprintf(DockerPullCommand, c.params.Application, c.params.Tag), ""); err != nil {
+	if _, err := command.Execute(fmt.Sprintf(DockerPullCommand, c.params.Application, c.params.Tag), ""); err != nil {
 		return err
 	}
 
-	if _, err := executor.Execute(fmt.Sprintf(DockerTagCommand, c.params.Application, c.params.Tag, c.params.Application, finalTag), ""); err != nil {
+	if _, err := command.Execute(fmt.Sprintf(DockerTagCommand, c.params.Application, c.params.Tag, c.params.Application, finalTag), ""); err != nil {
 		return err
 	}
 
-	if _, err := executor.Execute(fmt.Sprintf(DockerPushCommand, c.params.Application, finalTag), ""); err != nil {
+	if _, err := command.Execute(fmt.Sprintf(DockerPushCommand, c.params.Application, finalTag), ""); err != nil {
 		return err
 	}
 

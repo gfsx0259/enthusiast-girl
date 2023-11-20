@@ -6,3 +6,11 @@ type Event struct {
 	FromUsername string
 	Message      string
 }
+
+type Listener interface {
+	Listen()
+}
+
+type Processor interface {
+	Process(e *Event) error
+}
