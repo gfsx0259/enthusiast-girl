@@ -2,6 +2,7 @@ package deploy
 
 import (
 	"deployRunner/command"
+	"deployRunner/config"
 	"errors"
 	"fmt"
 )
@@ -10,28 +11,28 @@ const (
 	Workdir             string = "okd-pp/pp-%s/overlays/%s/"
 	Repository          string = "ssh://git@stash.ecommpay.com:7999/okd/okd-pp.git"
 	CustomizeCommand    string = "kustomize edit set image concept-%s=quay.ecpdss.net/platform/ecommpay/pp/concept-%s:%s"
-	GitUser             string = "k.popov"
-	GitEmail            string = "k.popov@it.ecommpay.com"
 	GitConfigureCommand        = "git config --global user.name \"%s\" && git config --global user.email \"%s\""
 	CommitMessage       string = "Update version via bot: %s => %s"
 )
 
 type Command struct {
 	params *command.ApplicationParams
+	stash  *config.Stash
 	target string
 }
 
-func New(application string, tag string, target string) Command {
+func New(application string, tag string, stash *config.Stash, target string) Command {
 	return Command{
 		params: &command.ApplicationParams{Application: application, Tag: tag},
 		target: target,
+		stash:  stash,
 	}
 }
 
 func (c Command) Run() error {
 	workdir := fmt.Sprintf(Workdir, c.params.Application, c.target)
 
-	if _, err := command.Execute(fmt.Sprintf(GitConfigureCommand, GitUser, GitEmail), ""); err != nil {
+	if _, err := command.Execute(fmt.Sprintf(GitConfigureCommand, c.stash.User, c.stash.Email), ""); err != nil {
 		return err
 	}
 

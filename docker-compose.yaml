@@ -11,6 +11,7 @@ services:
       - TELEGRAM_APITOKEN=insertTokenHere
       - SDLC_USER=sdlc
       - SDLC_PASSWORD=insertPasswordHere
+      - SDLC_TOKEN=insertTokenHere
       - QUAY_USER=platform+pp
       - QUAY_PASSWORD=insertPasswordHere
 

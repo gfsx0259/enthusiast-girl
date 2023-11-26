@@ -1,31 +1,32 @@
 package telegram
 
 import (
+	"deployRunner/config"
 	"deployRunner/event"
 	"errors"
 	"fmt"
 	telegram "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"os"
 )
 
 type Listener struct {
+	config *config.Config
 }
 
-func NewListener() *Listener {
-	return &Listener{}
+func NewListener(config *config.Config) *Listener {
+	return &Listener{config}
 }
 
 func (l *Listener) Listen() {
-	bot := createBot()
+	bot := l.createBot()
 
-	subscribe(
+	l.subscribe(
 		bot.GetUpdatesChan(telegram.NewUpdate(0)),
-		NewProcessor(bot),
+		NewProcessor(bot, l.config),
 	)
 }
 
-func createBot() *telegram.BotAPI {
-	bot, err := telegram.NewBotAPI(os.Getenv("TELEGRAM_APITOKEN"))
+func (l *Listener) createBot() *telegram.BotAPI {
+	bot, err := telegram.NewBotAPI(l.config.Telegram.Token)
 	if err != nil {
 		panic(err)
 	}
@@ -35,7 +36,7 @@ func createBot() *telegram.BotAPI {
 	return bot
 }
 
-func subscribe(updates telegram.UpdatesChannel, eventProcessor *Processor) {
+func (l *Listener) subscribe(updates telegram.UpdatesChannel, eventProcessor *Processor) {
 	for update := range updates {
 		if receivedEvent, err := toEvent(update); err == nil {
 			err := eventProcessor.Process(receivedEvent)

@@ -2,8 +2,8 @@ package release
 
 import (
 	"deployRunner/command"
+	"deployRunner/config"
 	"fmt"
-	"os"
 )
 
 const (
@@ -15,18 +15,20 @@ const (
 
 type Command struct {
 	params *command.ApplicationParams
+	quay   *config.Quay
 }
 
-func New(application string, tag string) Command {
+func New(application string, tag string, quay *config.Quay) Command {
 	return Command{
 		params: &command.ApplicationParams{Application: application, Tag: tag},
+		quay:   quay,
 	}
 }
 
 func (c Command) Run() error {
 	finalTag := command.ResolveFinalTag(c.params.Tag)
 
-	if _, err := command.Execute(fmt.Sprintf(DockerLoginCommand, os.Getenv("QUAY_USER"), os.Getenv("QUAY_PASSWORD")), ""); err != nil {
+	if _, err := command.Execute(fmt.Sprintf(DockerLoginCommand, c.quay.User, c.quay.Password), ""); err != nil {
 		return err
 	}
 

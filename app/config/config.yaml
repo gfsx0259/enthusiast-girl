@@ -1,0 +1,18 @@
+telegram:
+  token: "<secret>"
+  maintainers:
+    - kopopov
+    - fsafsd
+
+sdlc:
+  user: "<secret>"
+  password: "<secret>"
+  token: "<secret>"
+
+quay:
+  user: "<secret>"
+  password: "<secret>"
+
+stash:
+  user: k.popov
+  email: k.popov@it.ecommpay.com

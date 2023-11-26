@@ -5,10 +5,12 @@ import (
 	"deployRunner/command/build"
 	"deployRunner/command/deploy"
 	"deployRunner/command/release"
+	"deployRunner/config"
 	"deployRunner/event"
 	"fmt"
 	"github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/oriser/regroup"
+	"golang.org/x/exp/slices"
 )
 
 const (
@@ -23,11 +25,12 @@ const (
 )
 
 type Processor struct {
-	bot *tgbotapi.BotAPI
+	bot    *tgbotapi.BotAPI
+	config *config.Config
 }
 
-func NewProcessor(bot *tgbotapi.BotAPI) *Processor {
-	return &Processor{bot: bot}
+func NewProcessor(bot *tgbotapi.BotAPI, config *config.Config) *Processor {
+	return &Processor{bot, config}
 }
 
 func (p *Processor) Process(message *event.Event) error {
@@ -51,7 +54,7 @@ func (p *Processor) Process(message *event.Event) error {
 
 	switch {
 	case cmd == CommandImage && sub == ActionBuild:
-		commandInstance := build.New(app, tag)
+		commandInstance := build.New(app, tag, &p.config.Sdlc)
 
 		if err := commandInstance.Run(); err == nil {
 			p.message(message.ChatId, "Image building started, please wait")
@@ -66,7 +69,7 @@ func (p *Processor) Process(message *event.Event) error {
 			return nil
 		}
 
-		commandInstance := release.New(app, tag)
+		commandInstance := release.New(app, tag, &p.config.Quay)
 
 		if err := commandInstance.Run(); err == nil {
 			p.message(message.ChatId, fmt.Sprintf("Make final tag %s for %s application", command.ResolveFinalTag(tag), app))
@@ -83,7 +86,7 @@ func (p *Processor) Process(message *event.Event) error {
 			}
 		}
 
-		commandInstance := deploy.New(app, tag, p.normalizeEnvironment(sub))
+		commandInstance := deploy.New(app, tag, &p.config.Stash, p.normalizeEnvironment(sub))
 
 		if err := commandInstance.Run(); err == nil {
 			p.message(message.ChatId, fmt.Sprintf("Deploy for application %s with tag %s runned successfully", app, tag))
@@ -116,16 +119,7 @@ func (p *Processor) message(chatId int64, message string) {
 }
 
 func (p *Processor) isCommandAvailable(username string) bool {
-	maintainers := map[string]bool{
-		"kopopov": true,
-		"fsafsd":  true,
-	}
-
-	if _, ok := maintainers[username]; ok {
-		return true
-	}
-
-	return false
+	return slices.Contains(p.config.Maintainers, username)
 }
 
 func (p *Processor) repeat(message *event.Event) {
