@@ -1,12 +1,12 @@
 package telegram
 
 import (
-	"deployRunner/command"
-	"deployRunner/command/build"
-	"deployRunner/command/deploy"
-	"deployRunner/command/release"
+	"deployRunner/app/command"
+	"deployRunner/app/command/build"
+	"deployRunner/app/command/deploy"
+	"deployRunner/app/command/release"
+	"deployRunner/app/event"
 	"deployRunner/config"
-	"deployRunner/event"
 	"fmt"
 	"github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/oriser/regroup"
@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	CommandRegexp        = `^/?P<command>(image|deploy) (?P<sub>\w+) (?P<app>api|spa)#(?P<tag>[\.\d\w-]+)$`
+	CommandRegexp        = `^/(?P<command>image|deploy) (?P<sub>\w+) (?P<app>api|spa)#(?P<tag>[\.\d\w-]+)$`
 	CommandHelp   string = "/help"
 	CommandImage  string = "image"
 	CommandDeploy string = "deploy"

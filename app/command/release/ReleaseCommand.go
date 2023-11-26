@@ -1,7 +1,7 @@
 package release
 
 import (
-	"deployRunner/command"
+	"deployRunner/app/command"
 	"deployRunner/config"
 	"fmt"
 )

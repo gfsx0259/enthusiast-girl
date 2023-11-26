@@ -38,7 +38,7 @@ type (
 func New() (*Config, error) {
 	cfg := &Config{}
 
-	if err := cleanenv.ReadConfig("app/config/config.yaml", cfg); err != nil {
+	if err := cleanenv.ReadConfig("./config/config.yaml", cfg); err != nil {
 		return nil, fmt.Errorf("config error: %w", err)
 	}
 

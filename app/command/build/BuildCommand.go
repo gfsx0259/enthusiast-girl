@@ -1,10 +1,11 @@
 package build
 
 import (
-	"deployRunner/command"
+	"deployRunner/app/command"
 	"deployRunner/config"
 	"errors"
 	"fmt"
+	"log"
 	"strings"
 )
 
@@ -28,11 +29,13 @@ func New(application string, tag string, sdlc *config.Sdlc) Command {
 func (c Command) Run() error {
 	crumb, err := command.Execute(fmt.Sprintf(GetCrumbCommand, c.sdlc.User, c.sdlc.Password), "")
 	if err != nil {
+		log.Fatalf("Can not get jenknns crumb: %s", err)
 		return err
 	}
 
 	response, err := command.Execute(fmt.Sprintf(TriggerJobCommand, c.sdlc.User, c.sdlc.Token, c.params.Application, c.params.Tag, crumb), "")
 	if err != nil {
+		log.Fatalf("Can not trigger jenknns job: %s", err)
 		return err
 	}
 

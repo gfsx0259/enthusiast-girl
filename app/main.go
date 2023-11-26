@@ -1,8 +1,8 @@
 package main
 
 import (
+	"deployRunner/app/telegram"
 	"deployRunner/config"
-	"deployRunner/telegram"
 	"log"
 )
 

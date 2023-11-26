@@ -1,8 +1,8 @@
 package telegram
 
 import (
+	"deployRunner/app/event"
 	"deployRunner/config"
-	"deployRunner/event"
 	"errors"
 	"fmt"
 	telegram "github.com/go-telegram-bot-api/telegram-bot-api/v5"

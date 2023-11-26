@@ -1,7 +1,7 @@
 package deploy
 
 import (
-	"deployRunner/command"
+	"deployRunner/app/command"
 	"deployRunner/config"
 	"errors"
 	"fmt"
