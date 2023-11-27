@@ -26,12 +26,16 @@ func New(application string, tag string, sdlc *config.Sdlc) Command {
 }
 
 func (c Command) Run() (string, error) {
-	crumb, err := command.Execute(fmt.Sprintf(GetCrumbCommand, c.sdlc.User, c.sdlc.Password), "")
+	crumbCommand := fmt.Sprintf(GetCrumbCommand, c.sdlc.User, c.sdlc.Password)
+
+	crumb, err := command.Execute(crumbCommand, "")
 	if err != nil {
 		return "", errors.New(fmt.Sprintf("error occurred while fetching jenknns crumb: %s", err.Error()))
 	}
 
-	response, err := command.Execute(fmt.Sprintf(TriggerJobCommand, c.sdlc.User, c.sdlc.Token, c.params.Application, c.params.Tag, crumb), "")
+	triggerCommand := fmt.Sprintf(TriggerJobCommand, c.sdlc.User, c.sdlc.Token, c.params.Application, c.params.Tag, strings.TrimSuffix(crumb, "\n"))
+
+	response, err := command.Execute(triggerCommand, "")
 	if err != nil {
 		return "", errors.New(fmt.Sprintf("error occurred while triggering jenkins job: %s", err.Error()))
 	}
