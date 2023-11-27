@@ -11,7 +11,7 @@ import (
 
 const (
 	GetCrumbCommand   string = "curl -u %s:%s -s \"https://ci.platformtests.net/crumbIssuer/api/xml\" | xmllint --format --xpath \"concat(//crumbRequestField,':',//crumb)\" -"
-	TriggerJobCommand string = "curl -I -X POST https://%s:%s@ci.platformtests.net/job/ecommpay/job/pp/job/concept-%s/view/tags/job/%s/build -H \"%s\""
+	TriggerJobCommand string = "curl -I -X POST https://%s:%s@ci.platformtests.net/job/ecommpay/job/pp/job/concept-%s/job/master/buildWithParameters -d \"FORCE_TAG=%s\" -H \"%s\""
 )
 
 type Command struct {
