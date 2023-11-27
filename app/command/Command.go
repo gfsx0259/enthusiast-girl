@@ -8,7 +8,7 @@ import (
 )
 
 type Command interface {
-	Run() error
+	Run() (string, error)
 }
 
 type ApplicationParams struct {

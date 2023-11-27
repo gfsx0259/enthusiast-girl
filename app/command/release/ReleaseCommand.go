@@ -25,24 +25,24 @@ func New(application string, tag string, quay *config.Quay) Command {
 	}
 }
 
-func (c Command) Run() error {
-	finalTag := command.ResolveFinalTag(c.params.Tag)
-
-	if _, err := command.Execute(fmt.Sprintf(DockerLoginCommand, c.quay.User, c.quay.Password), ""); err != nil {
-		return err
+func (c Command) Run() (string, error) {
+	if output, err := command.Execute(fmt.Sprintf(DockerLoginCommand, c.quay.User, c.quay.Password), ""); err != nil {
+		return output, err
 	}
 
-	if _, err := command.Execute(fmt.Sprintf(DockerPullCommand, c.params.Application, c.params.Tag), ""); err != nil {
-		return err
+	if output, err := command.Execute(fmt.Sprintf(DockerPullCommand, c.params.Application, c.params.Tag), ""); err != nil {
+		return output, err
 	}
 
-	if _, err := command.Execute(fmt.Sprintf(DockerTagCommand, c.params.Application, c.params.Tag, c.params.Application, finalTag), ""); err != nil {
-		return err
+	finalReleaseTag := command.ResolveFinalTag(c.params.Tag)
+
+	if output, err := command.Execute(fmt.Sprintf(DockerTagCommand, c.params.Application, c.params.Tag, c.params.Application, finalReleaseTag), ""); err != nil {
+		return output, err
 	}
 
-	if _, err := command.Execute(fmt.Sprintf(DockerPushCommand, c.params.Application, finalTag), ""); err != nil {
-		return err
+	if output, err := command.Execute(fmt.Sprintf(DockerPushCommand, c.params.Application, finalReleaseTag), ""); err != nil {
+		return output, err
 	}
 
-	return nil
+	return fmt.Sprintf("Make final tag %s for %s application", finalReleaseTag, c.params.Application), nil
 }

@@ -26,22 +26,22 @@ func New(application string, tag string, sdlc *config.Sdlc) Command {
 	}
 }
 
-func (c Command) Run() error {
+func (c Command) Run() (string, error) {
 	crumb, err := command.Execute(fmt.Sprintf(GetCrumbCommand, c.sdlc.User, c.sdlc.Password), "")
 	if err != nil {
 		log.Fatalf("Can not get jenknns crumb: %s", err)
-		return err
+		return "", err
 	}
 
 	response, err := command.Execute(fmt.Sprintf(TriggerJobCommand, c.sdlc.User, c.sdlc.Token, c.params.Application, c.params.Tag, crumb), "")
 	if err != nil {
 		log.Fatalf("Can not trigger jenknns job: %s", err)
-		return err
+		return "", err
 	}
 
 	if strings.Contains(response, "404") {
-		return errors.New("job does not exist")
+		return "", errors.New("job does not exist")
 	}
 
-	return nil
+	return "Image building started, please wait", nil
 }
