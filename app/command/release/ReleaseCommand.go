@@ -8,8 +8,8 @@ import (
 
 const (
 	DockerLoginCommand string = "docker login -u=\"%s\" -p=\"%s\" quay.ecpdss.net"
-	DockerPullCommand  string = "docker pull quay.ecpdss.net/platform/ecommpay/pp/concept-%s:latest-%s"
-	DockerTagCommand   string = "docker tag quay.ecpdss.net/platform/ecommpay/pp/concept-%s:latest-%s quay.ecpdss.net/platform/ecommpay/pp/concept-%s:%s"
+	DockerPullCommand  string = "docker pull quay.ecpdss.net/platform/ecommpay/pp/concept-%s:%s"
+	DockerTagCommand   string = "docker tag quay.ecpdss.net/platform/ecommpay/pp/concept-%s:%s quay.ecpdss.net/platform/ecommpay/pp/concept-%s:%s"
 	DockerPushCommand  string = "docker push quay.ecpdss.net/platform/ecommpay/pp/concept-%s:%s"
 )
 
