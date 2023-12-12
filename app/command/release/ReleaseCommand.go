@@ -34,7 +34,7 @@ func (c Command) Run() (string, error) {
 		return output, err
 	}
 
-	finalReleaseTag := command.ResolveFinalTag(c.params.Tag)
+	finalReleaseTag, _ := command.ResolveFinalTag(c.params.Tag)
 
 	if output, err := command.Execute(fmt.Sprintf(DockerTagCommand, c.params.Application, c.params.Tag, c.params.Application, finalReleaseTag), ""); err != nil {
 		return output, err
@@ -44,5 +44,9 @@ func (c Command) Run() (string, error) {
 		return output, err
 	}
 
-	return fmt.Sprintf("Make final tag %s for %s application", finalReleaseTag, c.params.Application), nil
+	return fmt.Sprintf("Make final tag %s for %s application 👌", finalReleaseTag, c.params.Application), nil
+}
+
+func (c Command) String() string {
+	return fmt.Sprintf("/image release %s#%s", c.params.Application, c.params.Tag)
 }

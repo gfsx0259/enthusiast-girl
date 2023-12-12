@@ -2,13 +2,17 @@ package help
 
 type Command struct{}
 
+func (c Command) String() string {
+	return ""
+}
+
 func New() Command {
 	return Command{}
 }
 
 func (c Command) Run() (string, error) {
 	return `
-	Hello baby! I'll tell you how to build and deliver your code.
+	Hello! I'll tell you how to build and deliver your code. 
 	
 	Firstly, you should create release at jira with your tasks.
 	Next, tell the build bot to build your release and return release candidate tag:

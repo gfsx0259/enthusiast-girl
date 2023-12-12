@@ -44,5 +44,9 @@ func (c Command) Run() (string, error) {
 		return "", errors.New("job does not exist")
 	}
 
-	return "Image building started, please wait", nil
+	return "Image building started, please wait SDLC notification ⏱", nil
+}
+
+func (c Command) String() string {
+	return fmt.Sprintf("/image build %s#%s", c.params.Application, c.params.Tag)
 }

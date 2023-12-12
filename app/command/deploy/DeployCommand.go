@@ -55,5 +55,9 @@ func (c Command) Run() (string, error) {
 		return output, err
 	}
 
-	return fmt.Sprintf("Deploy for application %s with tag %s runned successfully", c.params.Application, c.params.Tag), nil
+	return fmt.Sprintf("Deploy for application %s with tag %s runned successfully, please wait ARGO notification ⏱", c.params.Application, c.params.Tag), nil
+}
+
+func (c Command) String() string {
+	return fmt.Sprintf("/deploy %s %s#%s", c.target, c.params.Application, c.params.Tag)
 }

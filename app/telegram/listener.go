@@ -42,7 +42,6 @@ func (l *Listener) subscribe(updates telegram.UpdatesChannel, eventProcessor *Pr
 			err := eventProcessor.Process(receivedEvent)
 			if err != nil {
 				fmt.Println(err)
-				return
 			}
 		}
 	}

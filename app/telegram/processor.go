@@ -9,9 +9,10 @@ import (
 	"deployRunner/app/event"
 	"deployRunner/config"
 	"fmt"
-	"github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/oriser/regroup"
 	"golang.org/x/exp/slices"
+	"strings"
 )
 
 const (
@@ -36,13 +37,13 @@ func NewProcessor(bot *tgbotapi.BotAPI, config *config.Config) *Processor {
 
 func (p *Processor) Process(message *event.Event) error {
 	if message.Message == CommandHelp {
-		return p.executeCommand(message, help.New())
+		return p.executeCommand(message, help.New(), "")
 	}
 
 	expression := regroup.MustCompile(CommandRegexp)
 	groups, err := expression.Groups(message.Message)
 	if err != nil {
-		p.message(message.ChatId, fmt.Sprintf("Can`t understand command, use format %s", CommandRegexp))
+		p.message(message.ChatId, fmt.Sprintf("Can`t understand command, use format %s", CommandRegexp), "", "")
 		return nil
 	}
 
@@ -53,32 +54,65 @@ func (p *Processor) Process(message *event.Event) error {
 
 	switch {
 	case cmd == CommandImage && sub == ActionBuild:
-		return p.executeCommand(message, build.New(app, tag, &p.config.Sdlc))
+		buildCommand := build.New(app, tag, &p.config.Sdlc)
+		deployCommand := deploy.New(app, tag, &p.config.Stash, EnvStage)
+
+		return p.executeCommand(
+			message,
+			buildCommand,
+			deployCommand.String(),
+		)
 	case cmd == CommandImage && sub == ActionRelease:
 		if !p.isCommandAvailable(message) {
 			return nil
 		}
 
-		return p.executeCommand(message, release.New(app, tag, &p.config.Quay))
-	case cmd == CommandDeploy:
-		if sub == EnvProd && !p.isCommandAvailable(message) {
-			return nil
+		var finalTag string
+
+		if finalTag, err = command.ResolveFinalTag(tag); err != nil {
+			p.message(message.ChatId, err.Error(), "", "")
+			return err
 		}
 
-		return p.executeCommand(message, deploy.New(app, tag, &p.config.Stash, p.normalizeEnvironment(sub)))
+		releaseCommand := release.New(app, tag, &p.config.Quay)
+		deployCommand := deploy.New(app, finalTag, &p.config.Stash, EnvProd)
+
+		return p.executeCommand(
+			message,
+			releaseCommand,
+			deployCommand.String(),
+		)
+	case cmd == CommandDeploy:
+		deployCommand := deploy.New(app, tag, &p.config.Stash, p.normalizeEnvironment(sub))
+
+		if sub == EnvProd {
+			if !p.isCommandAvailable(message) {
+				return nil
+			}
+
+			return p.executeCommand(
+				message,
+				deployCommand,
+				"",
+			)
+		} else {
+			return p.executeCommand(
+				message,
+				deployCommand,
+				release.New(app, tag, &p.config.Quay).String(),
+			)
+		}
 	default:
 		return nil
 	}
 }
 
-func (p *Processor) executeCommand(message *event.Event, command command.Command) error {
+func (p *Processor) executeCommand(message *event.Event, command command.Command, nextCommand string) error {
 	if output, err := command.Run(); err == nil {
-		p.message(message.ChatId, output)
-
+		p.message(message.ChatId, output, nextCommand, "")
 		return nil
 	} else {
-		p.message(message.ChatId, fmt.Sprintf("Can`t trigger command: %s", err.Error()))
-
+		p.message(message.ChatId, fmt.Sprintf("Can`t trigger command: %s", err.Error()), "", "")
 		return err
 	}
 }
@@ -91,9 +125,13 @@ func (p *Processor) normalizeEnvironment(env string) string {
 	return env
 }
 
-func (p *Processor) message(chatId int64, message string) {
+func (p *Processor) message(chatId int64, message string, nextCommand string, nextCommandTitle string) {
 	messageConfig := tgbotapi.NewMessage(chatId, message)
 	messageConfig.ParseMode = "HTML"
+
+	if nextCommand != "" {
+		messageConfig.ReplyMarkup = p.createKeyboard(nextCommandTitle, nextCommand)
+	}
 
 	if _, err := p.bot.Send(messageConfig); err != nil {
 		fmt.Println(err)
@@ -105,21 +143,39 @@ func (p *Processor) isCommandAvailable(message *event.Event) bool {
 		return true
 	}
 
-	p.repeat(message)
+	p.message(
+		message.ChatId,
+		fmt.Sprintf("Only maintainers %s can work with a production environment", p.buildApproveRequiredString()),
+		message.Message,
+		"Approve",
+	)
 	return false
 }
 
-func (p *Processor) repeat(message *event.Event) {
-	keyboard := tgbotapi.NewInlineKeyboardMarkup(
+func (p *Processor) buildApproveRequiredString() string {
+	var maintainers []string
+
+	for _, maintainer := range p.config.Maintainers {
+		maintainers = append(maintainers, "@%s ", maintainer)
+	}
+
+	maintainersString := strings.Join(maintainers, ",")
+
+	return fmt.Sprintf("Only maintainers %s can work with a production environment", maintainersString)
+}
+
+func (p *Processor) createKeyboard(commandTitle string, command string) tgbotapi.InlineKeyboardMarkup {
+	var title string
+
+	if commandTitle != "" {
+		title = commandTitle
+	} else {
+		title = "Run " + command
+	}
+
+	return tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(
-			tgbotapi.NewInlineKeyboardButtonData("Approve", message.Message),
+			tgbotapi.NewInlineKeyboardButtonData(title, command),
 		),
 	)
-
-	keyboardMessage := tgbotapi.NewMessage(message.ChatId, "Only maintainers @kopopov, @fsafsd can work with a production environment")
-	keyboardMessage.ReplyMarkup = keyboard
-
-	if _, err := p.bot.Send(keyboardMessage); err != nil {
-		fmt.Println(err)
-	}
 }
