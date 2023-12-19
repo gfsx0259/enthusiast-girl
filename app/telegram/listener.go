@@ -56,7 +56,7 @@ func toEvent(update telegram.Update) (*event.Event, error) {
 			Message:      update.Message.Text,
 		}, nil
 	}
-	if update.CallbackQuery.Message != nil {
+	if update.CallbackQuery != nil && update.CallbackQuery.Message != nil {
 		callback := update.CallbackQuery
 
 		return &event.Event{
