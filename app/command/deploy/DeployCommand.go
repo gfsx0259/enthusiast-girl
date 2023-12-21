@@ -5,6 +5,7 @@ import (
 	"deployRunner/config"
 	"errors"
 	"fmt"
+	"strings"
 )
 
 const (
@@ -12,6 +13,7 @@ const (
 	Repository          string = "ssh://git@stash.ecommpay.com:7999/okd/okd-pp.git"
 	CustomizeCommand    string = "kustomize edit set image concept-%s=quay.ecpdss.net/platform/ecommpay/pp/concept-%s:%s"
 	GitConfigureCommand string = "git config --global user.name \"%s\" && git config --global user.email \"%s\""
+	MakeEnvironmentJs   string = "PP_SPA_SENTRY_RELEASE=%s envsubst < environment.js.envsubst > environment.js"
 	CommitMessage       string = "Update version via bot: %s => %s"
 )
 
@@ -45,7 +47,12 @@ func (c Command) Run() (string, error) {
 	if output, err := command.Execute(fmt.Sprintf(CustomizeCommand, c.params.Application, c.params.Application, c.params.Tag), workdir); err != nil {
 		return output, err
 	}
-	if output, err := command.Execute("git add kustomization.yaml", workdir); err != nil {
+
+	if output, err := command.Execute(fmt.Sprintf(MakeEnvironmentJs, c.getSentryReleaseTag(c.params.Tag)), workdir); err != nil {
+		return output, err
+	}
+
+	if output, err := command.Execute("git add --all", workdir); err != nil {
 		return output, err
 	}
 	if output, err := command.Execute(fmt.Sprintf("git commit -m \"%s\"", fmt.Sprintf(CommitMessage, c.params.Application, c.params.Tag)), workdir); err != nil {
@@ -56,6 +63,15 @@ func (c Command) Run() (string, error) {
 	}
 
 	return fmt.Sprintf("Deploy for application %s with tag %s runned successfully, please wait ARGO notification ⏱", c.params.Application, c.params.Tag), nil
+}
+
+func (c Command) getSentryReleaseTag(tag string) string {
+	if strings.Contains(tag, "-rc") {
+		sentryReleaseTag, _ := command.ResolveFinalTag(c.params.Tag)
+		return sentryReleaseTag
+	} else {
+		return tag
+	}
 }
 
 func (c Command) String() string {
