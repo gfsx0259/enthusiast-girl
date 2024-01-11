@@ -48,8 +48,10 @@ func (c Command) Run() (string, error) {
 		return output, err
 	}
 
-	if output, err := command.Execute(fmt.Sprintf(MakeEnvironmentJs, c.getSentryReleaseTag(c.params.Tag)), workdir); err != nil {
-		return output, err
+	if c.params.Application == "spa" {
+		if output, err := command.Execute(fmt.Sprintf(MakeEnvironmentJs, c.getSentryReleaseTag(c.params.Tag)), workdir); err != nil {
+			return output, err
+		}
 	}
 
 	if output, err := command.Execute("git add --all", workdir); err != nil {
