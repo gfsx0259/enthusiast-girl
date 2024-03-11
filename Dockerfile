@@ -17,9 +17,10 @@ RUN go build -o ./bin/app ./app/main.go
 
 FROM alpine as runner
 
-RUN apk --no-cache add bash git openssh-client kustomize docker curl libxml2-utils envsubst
+RUN apk --no-cache add bash git openssh-client kustomize docker curl envsubst openjdk11
 
 COPY --from=builder /app/bin/app /
 COPY --from=builder /app/config /config
+COPY --from=builder /app/bin /bin
 
 CMD ["/app"]
