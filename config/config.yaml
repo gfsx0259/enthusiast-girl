@@ -7,7 +7,6 @@ telegram:
 sdlc:
   user: "<secret>"
   password: "<secret>"
-  token: "<secret>"
 
 quay:
   user: "<secret>"

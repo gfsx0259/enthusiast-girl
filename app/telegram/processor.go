@@ -145,7 +145,7 @@ func (p *Processor) isCommandAvailable(message *event.Event) bool {
 
 	p.message(
 		message.ChatId,
-		fmt.Sprintf("Only maintainers %s can work with a production environment", p.buildApproveRequiredString()),
+		p.buildApproveRequiredString(),
 		message.Message,
 		"Approve",
 	)
@@ -156,10 +156,10 @@ func (p *Processor) buildApproveRequiredString() string {
 	var maintainers []string
 
 	for _, maintainer := range p.config.Maintainers {
-		maintainers = append(maintainers, "@%s ", maintainer)
+		maintainers = append(maintainers, fmt.Sprintf("@%s", maintainer))
 	}
 
-	maintainersString := strings.Join(maintainers, ",")
+	maintainersString := strings.Join(maintainers, ", ")
 
 	return fmt.Sprintf("Only maintainers %s can work with a production environment", maintainersString)
 }

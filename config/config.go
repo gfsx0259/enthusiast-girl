@@ -21,7 +21,6 @@ type (
 	Sdlc struct {
 		User     string `env-required:"true" yaml:"user" env:"SDLC_USER"`
 		Password string `env-required:"true" yaml:"password" env:"SDLC_PASSWORD"`
-		Token    string `env-required:"true" yaml:"token" env:"SDLC_TOKEN"`
 	}
 
 	Quay struct {
