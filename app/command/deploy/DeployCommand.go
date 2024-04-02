@@ -9,12 +9,13 @@ import (
 )
 
 const (
-	Workdir             string = "okd-pp/pp-%s/overlays/%s/"
-	Repository          string = "ssh://git@stash.ecommpay.com:7999/okd/okd-pp.git"
-	CustomizeCommand    string = "kustomize edit set image concept-%s=quay.ecpdss.net/platform/ecommpay/pp/concept-%s:%s"
-	GitConfigureCommand string = "git config --global user.name \"%s\" && git config --global user.email \"%s\""
-	MakeEnvironmentJs   string = "PP_SPA_SENTRY_RELEASE=%s envsubst < environment.js.envsubst > environment.js"
-	CommitMessage       string = "Update version via bot: %s => %s"
+	Workdir                   string = "okd-pp/pp-%s/overlays/%s/"
+	Repository                string = "ssh://git@stash.ecommpay.com:7999/okd/okd-pp.git"
+	CustomizeImageCommand     string = "kustomize edit set image concept-%s=quay.ecpdss.net/platform/ecommpay/pp/concept-%s:%s"
+	CustomizeConfigmapCommand string = "kustomize edit set configmap pp-api-config --from-literal=%s=%s"
+	GitConfigureCommand       string = "git config --global user.name \"%s\" && git config --global user.email \"%s\""
+	MakeEnvironmentJs         string = "PP_SPA_SENTRY_RELEASE=%s envsubst < environment.js.envsubst > environment.js"
+	CommitMessage             string = "Update version via bot: %s => %s"
 )
 
 type Command struct {
@@ -44,12 +45,19 @@ func (c Command) Run() (string, error) {
 
 	workdir := fmt.Sprintf(Workdir, c.params.Application, c.target)
 
-	if output, err := command.Execute(fmt.Sprintf(CustomizeCommand, c.params.Application, c.params.Application, c.params.Tag), workdir); err != nil {
+	if output, err := command.Execute(fmt.Sprintf(CustomizeImageCommand, c.params.Application, c.params.Application, c.params.Tag), workdir); err != nil {
 		return output, err
 	}
 
+	finalTag := c.getSentryReleaseTag(c.params.Tag)
+
 	if c.params.Application == "spa" {
-		if output, err := command.Execute(fmt.Sprintf(MakeEnvironmentJs, c.getSentryReleaseTag(c.params.Tag)), workdir); err != nil {
+		if output, err := command.Execute(fmt.Sprintf(MakeEnvironmentJs, finalTag), workdir); err != nil {
+			return output, err
+		}
+	}
+	if c.params.Application == "api" {
+		if output, err := command.Execute(fmt.Sprintf(CustomizeConfigmapCommand, "PP_API_RELEASE", finalTag), workdir); err != nil {
 			return output, err
 		}
 	}
