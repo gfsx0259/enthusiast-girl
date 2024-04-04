@@ -2,10 +2,12 @@ package telegram
 
 import (
 	"deployRunner/app/command"
-	"deployRunner/app/command/build"
 	"deployRunner/app/command/deploy"
 	"deployRunner/app/command/help"
-	"deployRunner/app/command/release"
+	"deployRunner/app/command/image/build"
+	"deployRunner/app/command/image/inspect"
+	"deployRunner/app/command/image/logs"
+	"deployRunner/app/command/image/release"
 	"deployRunner/app/event"
 	"deployRunner/config"
 	"fmt"
@@ -16,11 +18,13 @@ import (
 )
 
 const (
-	CommandRegexp        = `^/(?P<command>image|deploy) (?P<sub>\w+) (?P<app>api|spa)#(?P<tag>[\.\d\w-]+)$`
+	CommandRegexp        = `^/(?P<command>image|deploy) (?P<sub>\w+) (?P<app>api|spa)#?(?P<tag>[\.\d\w-]+)?$`
 	CommandHelp   string = "/help"
 	CommandImage  string = "image"
 	CommandDeploy string = "deploy"
 	ActionBuild   string = "build"
+	ActionInspect string = "inspect"
+	ActionLogs    string = "logs"
 	ActionRelease string = "release"
 	EnvStage      string = "stage"
 	EnvProd       string = "prod"
@@ -62,6 +66,22 @@ func (p *Processor) Process(message *event.Event) error {
 			buildCommand,
 			deployCommand.String(),
 		)
+	case cmd == CommandImage && sub == ActionInspect:
+		inspectCommand := inspect.New(app, &p.config.Sdlc)
+		logsCommand := logs.New(app, &p.config.Sdlc)
+
+		return p.executeCommand(
+			message,
+			inspectCommand,
+			logsCommand.String(),
+		)
+	case cmd == CommandImage && sub == ActionLogs:
+		logsCommand := logs.New(app, &p.config.Sdlc)
+		logsResult, _ := logsCommand.Run()
+
+		p.file(message.ChatId, logsResult)
+
+		return nil
 	case cmd == CommandImage && sub == ActionRelease:
 		if !p.isCommandAvailable(message) {
 			return nil
@@ -132,6 +152,15 @@ func (p *Processor) message(chatId int64, message string, nextCommand string, ne
 	if nextCommand != "" {
 		messageConfig.ReplyMarkup = p.createKeyboard(nextCommandTitle, nextCommand)
 	}
+
+	if _, err := p.bot.Send(messageConfig); err != nil {
+		fmt.Println(err)
+	}
+}
+
+func (p *Processor) file(chatId int64, fileUrl string) {
+	file := tgbotapi.FilePath(fileUrl)
+	messageConfig := tgbotapi.NewDocument(chatId, file)
 
 	if _, err := p.bot.Send(messageConfig); err != nil {
 		fmt.Println(err)
