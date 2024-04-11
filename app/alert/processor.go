@@ -26,22 +26,23 @@ func (p *Processor) AcceptHook(w http.ResponseWriter, r *http.Request) {
 	)
 
 	hookStructure := NewStructure(r.Body)
+	if hookStructure != nil {
+		rows := []string{
+			"Sentry alert\n",
+			"Alert resolved for projects: " + strings.ToUpper(strings.Join(hookStructure.Metric.Projects, ",")),
+			hookStructure.Title,
+			hookStructure.Text,
+			hookStructure.Url,
+		}
 
-	rows := []string{
-		"Sentry alert\n",
-		"Alert resolved for projects: " + strings.ToUpper(strings.Join(hookStructure.Metric.Projects, ",")),
-		hookStructure.Title,
-		hookStructure.Text,
-		hookStructure.Url,
-	}
+		messageConfig.Caption = strings.Join(rows, "\n")
 
-	messageConfig.Caption = strings.Join(rows, "\n")
-
-	if _, err := bot.Send(messageConfig); err != nil {
-		fmt.Println(err)
-	}
-	if _, err := io.WriteString(w, "ok"); err != nil {
-		fmt.Println(err)
+		if _, err := bot.Send(messageConfig); err != nil {
+			fmt.Println(err)
+		}
+		if _, err := io.WriteString(w, "ok"); err != nil {
+			fmt.Println(err)
+		}
 	}
 }
 

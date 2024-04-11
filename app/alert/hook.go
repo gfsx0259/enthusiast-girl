@@ -1,6 +1,7 @@
 package alert
 
 import (
+	"fmt"
 	"github.com/ilyakaznacheev/cleanenv"
 	"io"
 )
@@ -26,6 +27,7 @@ func NewStructure(r io.Reader) *Hook {
 	hook := &Hook{}
 
 	if err := cleanenv.ParseJSON(r, hook); err != nil {
+		fmt.Printf("Can not parse response: %s\n", err)
 		return nil
 	}
 
