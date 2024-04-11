@@ -11,6 +11,7 @@ type (
 		Sdlc     `yaml:"sdlc"`
 		Quay     `yaml:"quay"`
 		Stash    `yaml:"stash"`
+		Alert    `yaml:"alert"`
 	}
 
 	Telegram struct {
@@ -31,6 +32,11 @@ type (
 	Stash struct {
 		User  string `yaml:"user"`
 		Email string `yaml:"email"`
+	}
+
+	Alert struct {
+		HookPort string `env-required:"true" yaml:"hookPort" env:"ALERT_HOOK_PORT"`
+		ChatId   int    `env-required:"true" yaml:"chatId" env:"ALERT_CHAT_ID"`
 	}
 )
 

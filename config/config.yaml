@@ -15,3 +15,7 @@ quay:
 stash:
   user: k.popov
   email: k.popov@it.ecommpay.com
+
+alert:
+  hookPort: 461794724
+  chatId: 123

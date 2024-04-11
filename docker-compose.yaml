@@ -13,4 +13,6 @@ services:
       - SDLC_PASSWORD=<secret>
       - QUAY_USER=<secret>
       - QUAY_PASSWORD=<secret>
+      - ALERT_CHAT_ID=461794724
+      - ALERT_HOOK_PORT=9002
 

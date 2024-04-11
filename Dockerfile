@@ -22,5 +22,6 @@ RUN apk --no-cache add bash git openssh-client kustomize=5.3.0-r2 docker curl en
 COPY --from=builder /app/bin/app /
 COPY --from=builder /app/config /config
 COPY --from=builder /app/bin /bin
+COPY --from=builder /app/static /static
 
 CMD ["/app"]
