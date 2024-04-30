@@ -44,7 +44,7 @@ func (c Command) Run() (string, error) {
 		return output, err
 	}
 
-	return fmt.Sprintf("Make final tag %s for %s application 👌", finalReleaseTag, c.params.Application), nil
+	return fmt.Sprintf("👌 Make final tag %s for %s application", finalReleaseTag, c.params.Application), nil
 }
 
 func (c Command) String() string {

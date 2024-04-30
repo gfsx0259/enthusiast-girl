@@ -190,7 +190,7 @@ func (p *Processor) buildApproveRequiredString() string {
 
 	maintainersString := strings.Join(maintainers, ", ")
 
-	return fmt.Sprintf("Only maintainers %s can work with a production environment", maintainersString)
+	return fmt.Sprintf("Only maintainers (%s) can work with production environment", maintainersString)
 }
 
 func (p *Processor) createKeyboard(commandTitle string, command string) tgbotapi.InlineKeyboardMarkup {

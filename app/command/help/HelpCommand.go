@@ -12,23 +12,25 @@ func New() Command {
 
 func (c Command) Run() (string, error) {
 	return `
-	Hello! I'll tell you how to build and deliver your code. 
-	
-	Firstly, you should create release at jira with your tasks.
-	Next, tell the build bot to build your release and return release candidate tag:
+	Here's how to build and deliver your code:
+	Start by creating a release in Jira with your associated tasks.
+
+	Tell the build bot to build your release and return the release candidate tag using the following command:
     <b>/build#{RELEASE ID}</b>
 
-	Use release candidate tag to trigger image building:
+	Use the release candidate tag to trigger the image building process with this command:
     <b>/image build {APP}#{RC TAG}</b>
-	Next, you can use image to deploy it on stage environment:
+
+	Once the image is built, you can deploy it to the stage environment using this command: /deploy stage {APP} {RC TAG}
     <b>/deploy stage {APP}#{RC TAG}</b>
 
-	When testing is finished, complete the release build by placing the final tag in the repository:
+	After testing is complete, finalize the release build by pushing the final tag to the repository with this command: /build {RELEASE ID}
 	<b>/build#{RELEASE ID}</b>
-	Also put the final tag to image register:
+
+	Additionally, update the image registry with the final tag using this command:
 	<b>/image release {APP}#{RC TAG}</b>
 
-	Last step, deliver the image to the production environment:
+	Finally, deliver the image to the production environment with this command:
 	<b>/deploy prod {APP}#{TAG}</b>
 	`, nil
 }
