@@ -29,7 +29,7 @@ func (p *Processor) AcceptHook(w http.ResponseWriter, r *http.Request) {
 	if hookStructure != nil {
 		rows := []string{
 			"Sentry alert\n",
-			"Alert resolved for projects: " + strings.ToUpper(strings.Join(hookStructure.Metric.Projects, ",")),
+			"Alert had been resolved for projects: " + strings.ToUpper(strings.Join(hookStructure.Metric.Projects, ",")),
 			hookStructure.Title,
 			hookStructure.Text,
 			hookStructure.Url,

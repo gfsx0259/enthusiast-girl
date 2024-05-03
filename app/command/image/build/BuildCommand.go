@@ -31,7 +31,7 @@ func (c Command) Run() (string, error) {
 		return "", errors.New(err.Error())
 	}
 
-	return "Image building started, please wait SDLC notification ⏱", nil
+	return "⏱ Building of image started, please wait for CI notification", nil
 }
 
 func (c Command) String() string {

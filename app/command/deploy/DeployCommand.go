@@ -66,13 +66,13 @@ func (c Command) Run() (string, error) {
 		return output, err
 	}
 	if output, err := command.Execute(fmt.Sprintf("git commit -m \"%s\"", fmt.Sprintf(CommitMessage, c.params.Application, c.params.Tag)), workdir); err != nil {
-		return output, errors.New("tag already applied, nothing to do")
+		return output, errors.New("tag had been already applied, there is nothing to do")
 	}
 	if output, err := command.Execute("git push -u origin HEAD:master -f", workdir); err != nil {
 		return output, err
 	}
 
-	return fmt.Sprintf("Deploy for application %s with tag %s runned successfully, please wait ARGO notification ⏱", c.params.Application, c.params.Tag), nil
+	return fmt.Sprintf("Deploy for application %s with tag %s had run successfully, please wait for ARGO notification ⏱", c.params.Application, c.params.Tag), nil
 }
 
 func (c Command) getSentryReleaseTag(tag string) string {

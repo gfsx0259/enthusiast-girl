@@ -27,7 +27,7 @@ func NewStructure(r io.Reader) *Hook {
 	hook := &Hook{}
 
 	if err := cleanenv.ParseJSON(r, hook); err != nil {
-		fmt.Printf("Can not parse response: %s\n", err)
+		fmt.Printf("Cannot parse response: %s\n", err)
 		return nil
 	}
 
