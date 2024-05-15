@@ -10,7 +10,7 @@ type (
 		Telegram `yaml:"telegram"`
 		Sdlc     `yaml:"sdlc"`
 		Quay     `yaml:"quay"`
-		Stash    `yaml:"stash"`
+		Git      `yaml:"git"`
 		Alert    `yaml:"alert"`
 	}
 
@@ -29,7 +29,8 @@ type (
 		Password string `env-required:"true" yaml:"password" env:"QUAY_PASSWORD"`
 	}
 
-	Stash struct {
+	Git struct {
+		Host  string `env-required:"true" yaml:"host" env:"GIT_HOST"`
 		User  string `yaml:"user"`
 		Email string `yaml:"email"`
 	}

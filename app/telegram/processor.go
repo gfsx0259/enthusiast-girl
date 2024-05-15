@@ -59,7 +59,7 @@ func (p *Processor) Process(message *event.Event) error {
 	switch {
 	case cmd == CommandImage && sub == ActionBuild:
 		buildCommand := build.New(app, tag, &p.config.Sdlc)
-		deployCommand := deploy.New(app, tag, &p.config.Stash, EnvStage)
+		deployCommand := deploy.New(app, tag, &p.config.Git, EnvStage)
 
 		return p.executeCommand(
 			message,
@@ -95,7 +95,7 @@ func (p *Processor) Process(message *event.Event) error {
 		}
 
 		releaseCommand := release.New(app, tag, &p.config.Quay)
-		deployCommand := deploy.New(app, finalTag, &p.config.Stash, EnvProd)
+		deployCommand := deploy.New(app, finalTag, &p.config.Git, EnvProd)
 
 		return p.executeCommand(
 			message,
@@ -103,7 +103,7 @@ func (p *Processor) Process(message *event.Event) error {
 			deployCommand.String(),
 		)
 	case cmd == CommandDeploy:
-		deployCommand := deploy.New(app, tag, &p.config.Stash, p.normalizeEnvironment(sub))
+		deployCommand := deploy.New(app, tag, &p.config.Git, p.normalizeEnvironment(sub))
 
 		if sub == EnvProd {
 			if !p.isCommandAvailable(message) {

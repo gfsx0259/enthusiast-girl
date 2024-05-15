@@ -17,4 +17,5 @@ services:
       - QUAY_PASSWORD=<secret>
       - ALERT_CHAT_ID=461794724
       - ALERT_HOOK_PORT=9002
+      - GIT_HOST=<secret>
 

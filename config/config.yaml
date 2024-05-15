@@ -12,7 +12,8 @@ quay:
   user: "<secret>"
   password: "<secret>"
 
-stash:
+git:
+  host: "<secret>"
   user: k.popov
   email: k.popov@it.ecommpay.com
 

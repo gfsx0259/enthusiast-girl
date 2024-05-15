@@ -1,3 +1,6 @@
 .idea
+.vscode
 /vendor/
 /uploads/
+/projects/
+/bin/bot
