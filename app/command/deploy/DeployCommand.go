@@ -101,7 +101,8 @@ func (c Command) Run() (string, error) {
 }
 
 func (c Command) fetch(targetDir string, repo string) error {
-	if _, err := command.Execute(fmt.Sprintf("rm -rf ./%s", targetDir), "projects"); err != nil {
+	if output, err := command.Execute(fmt.Sprintf("rm -rf ./%s", targetDir), "projects"); err != nil {
+		fmt.Println(output, err)
 		return err
 	}
 	if _, err := command.Execute(fmt.Sprintf("git clone %s", repo), "projects"); err != nil {
