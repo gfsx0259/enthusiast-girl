@@ -11,6 +11,7 @@ import (
 )
 
 const (
+	TempDir                   string = "/tmp/projects"
 	Workdir                   string = "okd-pp/pp-%s/overlays/%s/"
 	Repository                string = "ssh://git@stash.ecommpay.com:7999/okd/okd-pp.git"
 	WorkdirValuesStage        string = "nl1/lui-common-stage/app-alpha"
@@ -59,7 +60,7 @@ func (c Command) Run() (string, error) {
 			return "", err
 		}
 
-		workdir := fmt.Sprintf("projects/"+Workdir, c.params.Application, c.target)
+		workdir := TempDir + "/" + fmt.Sprintf(Workdir, c.params.Application, c.target)
 
 		if output, err := command.Execute(fmt.Sprintf(CustomizeImageCommand, c.params.Application, c.params.Application, c.params.Tag), workdir); err != nil {
 			return output, err
@@ -86,7 +87,7 @@ func (c Command) Run() (string, error) {
 			return "", err
 		}
 
-		workdir := "projects/" + c.params.Application + "/" + WorkdirValuesStage + "/"
+		workdir := TempDir + "/" + c.params.Application + "/" + WorkdirValuesStage + "/"
 
 		if err := c.overrideValuesFile(workdir); err != nil {
 			return "", err
@@ -101,11 +102,13 @@ func (c Command) Run() (string, error) {
 }
 
 func (c Command) fetch(targetDir string, repo string) error {
-	if output, err := command.Execute(fmt.Sprintf("rm -rf ./%s", targetDir), "projects"); err != nil {
-		fmt.Println(output, err)
+	if _, err := command.Execute(fmt.Sprintf("mkdir -p %s", TempDir), ""); err != nil {
 		return err
 	}
-	if _, err := command.Execute(fmt.Sprintf("git clone %s", repo), "projects"); err != nil {
+	if _, err := command.Execute(fmt.Sprintf("rm -rf ./%s", targetDir), TempDir); err != nil {
+		return err
+	}
+	if _, err := command.Execute(fmt.Sprintf("git clone %s", repo), TempDir); err != nil {
 		return err
 	}
 
