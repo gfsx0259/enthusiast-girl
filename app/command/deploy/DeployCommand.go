@@ -55,7 +55,7 @@ func (c Command) Run() (string, error) {
 		return output, err
 	}
 
-	if c.target == "prod" {
+	if c.target == "prod-fi1" {
 		if err := c.fetch("okd-pp", Repository); err != nil {
 			return "", err
 		}
