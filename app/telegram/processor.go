@@ -103,6 +103,10 @@ func (p *Processor) Process(message *event.Event) error {
 			deployCommand.String(),
 		)
 	case cmd == CommandDeploy:
+
+        p.message(message.ChatId, "Forbidden. Contact with SRE team for deployment.", "", "")
+        return nil
+
 		deployCommand := deploy.New(app, tag, &p.config.Git, p.normalizeEnvironment(sub))
 
 		if sub == EnvProd {
