@@ -4,43 +4,46 @@ import (
 	"deployRunner/app/command"
 	"deployRunner/config"
 	"fmt"
+	"strings"
 )
 
 const (
-	DockerLoginCommand string = "docker login -u=\"%s\" -p=\"%s\" quay.ecpdss.net"
-	DockerPullCommand  string = "docker pull quay.ecpdss.net/platform/ecommpay/pp/concept-%s:%s"
-	DockerTagCommand   string = "docker tag quay.ecpdss.net/platform/ecommpay/pp/concept-%s:%s quay.ecpdss.net/platform/ecommpay/pp/concept-%s:%s"
-	DockerPushCommand  string = "docker push quay.ecpdss.net/platform/ecommpay/pp/concept-%s:%s"
+	DockerLoginCommand string = "docker login -u=\"%s\" -p=\"%s\" %s"
+	DockerPullCommand  string = "docker pull %s/ecommpay/pp/%s:%s"
+	DockerTagCommand   string = "docker tag %s/ecommpay/pp/%s:%s %s/ecommpay/pp/%s:%s"
+	DockerPushCommand  string = "docker push %s/ecommpay/pp/%s:%s"
 )
 
 type Command struct {
 	params *command.ApplicationParams
-	quay   *config.Quay
+	registry *config.Registry
 }
 
-func New(application string, tag string, quay *config.Quay) Command {
+func New(application string, tag string, registry *config.Registry) Command {
 	return Command{
 		params: &command.ApplicationParams{Application: application, Tag: tag},
-		quay:   quay,
+		registry: registry,
 	}
 }
 
 func (c Command) Run() (string, error) {
-	if output, err := command.Execute(fmt.Sprintf(DockerLoginCommand, c.quay.User, c.quay.Password), ""); err != nil {
+    registryPaths := strings.Split(c.registry.Host, "/")
+
+	if output, err := command.Execute(fmt.Sprintf(DockerLoginCommand, c.registry.User, c.registry.Password, registryPaths[:len(registryPaths)-1]), ""); err != nil {
 		return output, err
 	}
 
-	if output, err := command.Execute(fmt.Sprintf(DockerPullCommand, c.params.Application, c.params.Tag), ""); err != nil {
+	if output, err := command.Execute(fmt.Sprintf(DockerPullCommand, c.registry.Host, c.params.Application, c.params.Tag), ""); err != nil {
 		return output, err
 	}
 
 	finalReleaseTag, _ := command.ResolveFinalTag(c.params.Tag)
 
-	if output, err := command.Execute(fmt.Sprintf(DockerTagCommand, c.params.Application, c.params.Tag, c.params.Application, finalReleaseTag), ""); err != nil {
+	if output, err := command.Execute(fmt.Sprintf(DockerTagCommand, c.registry.Host, c.params.Application, c.params.Tag, c.registry.Host, c.params.Application, finalReleaseTag), ""); err != nil {
 		return output, err
 	}
 
-	if output, err := command.Execute(fmt.Sprintf(DockerPushCommand, c.params.Application, finalReleaseTag), ""); err != nil {
+	if output, err := command.Execute(fmt.Sprintf(DockerPushCommand, c.registry.Host, c.params.Application, finalReleaseTag), ""); err != nil {
 		return output, err
 	}
 

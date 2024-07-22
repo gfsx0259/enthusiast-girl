@@ -13,8 +13,9 @@ services:
       - TELEGRAM_APITOKEN=<secret>
       - SDLC_USER=<secret>
       - SDLC_PASSWORD=<secret>
-      - QUAY_USER=<secret>
-      - QUAY_PASSWORD=<secret>
+      - REGISTRY_HOST=<secret>
+      - REGISTRY_USER=<secret>
+      - REGISTRY_PASSWORD=<secret>
       - ALERT_CHAT_ID=461794724
       - ALERT_HOOK_PORT=9002
       - GIT_HOST=<secret>

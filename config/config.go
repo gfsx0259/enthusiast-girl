@@ -9,7 +9,7 @@ type (
 	Config struct {
 		Telegram `yaml:"telegram"`
 		Sdlc     `yaml:"sdlc"`
-		Quay     `yaml:"quay"`
+		Registry `yaml:"registry"`
 		Git      `yaml:"git"`
 		Alert    `yaml:"alert"`
 	}
@@ -24,9 +24,10 @@ type (
 		Password string `env-required:"true" yaml:"password" env:"SDLC_PASSWORD"`
 	}
 
-	Quay struct {
-		User     string `env-required:"true" yaml:"user" env:"QUAY_USER"`
-		Password string `env-required:"true" yaml:"password" env:"QUAY_PASSWORD"`
+	Registry struct {
+	    Host     string `env-required:"true" yaml:"host" env:"REGISTRY_HOST"`
+		User     string `env-required:"true" yaml:"user" env:"REGISTRY_USER"`
+		Password string `env-required:"true" yaml:"password" env:"REGISTRY_PASSWORD"`
 	}
 
 	Git struct {

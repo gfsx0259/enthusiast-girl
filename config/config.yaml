@@ -8,7 +8,8 @@ sdlc:
   user: "<secret>"
   password: "<secret>"
 
-quay:
+registry:
+  host: "<host>"
   user: "<secret>"
   password: "<secret>"
 

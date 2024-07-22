@@ -94,7 +94,7 @@ func (p *Processor) Process(message *event.Event) error {
 			return err
 		}
 
-		releaseCommand := release.New(app, tag, &p.config.Quay)
+		releaseCommand := release.New(app, tag, &p.config.Registry)
 		deployCommand := deploy.New(app, finalTag, &p.config.Git, EnvProd)
 
 		return p.executeCommand(
@@ -123,7 +123,7 @@ func (p *Processor) Process(message *event.Event) error {
 			return p.executeCommand(
 				message,
 				deployCommand,
-				release.New(app, tag, &p.config.Quay).String(),
+				release.New(app, tag, &p.config.Registry).String(),
 			)
 		}
 	default:
