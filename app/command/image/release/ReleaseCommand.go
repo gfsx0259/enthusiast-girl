@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	DockerLoginCommand string = "docker login -u=\"%s\" -p=\"%s\" %s"
+	DockerLoginCommand string = "docker login %s -u=\"%s\" -p=\"%s\""
 	DockerPullCommand  string = "docker pull %s/ecommpay/pp/%s:%s"
 	DockerTagCommand   string = "docker tag %s/ecommpay/pp/%s:%s %s/ecommpay/pp/%s:%s"
 	DockerPushCommand  string = "docker push %s/ecommpay/pp/%s:%s"
