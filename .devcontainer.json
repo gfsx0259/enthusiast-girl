@@ -1,0 +1,13 @@
+{ 
+   "dockerFile": "Dockerfile",
+   "forwardPorts": ["9002:9002"],
+   "postCreateCommand": ["/app"],
+   "runArgs": ["--env-file","${localWorkspaceFolder}/.devcontainer.env"],
+   "build": {
+      "options": ["--network=host"]
+   },
+   "mounts": 
+   [
+      { "source": "/var/run/docker.sock", "target": "/var/run/docker.sock", "type": "bind" }
+   ]
+}

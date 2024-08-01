@@ -6,25 +6,23 @@ import (
 	"deployRunner/app/command/help"
 	"deployRunner/app/command/image/build"
 	"deployRunner/app/command/image/inspect"
-	"deployRunner/app/command/image/logs"
 	"deployRunner/app/command/image/release"
 	"deployRunner/app/event"
 	"deployRunner/config"
 	"fmt"
+	"strings"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/oriser/regroup"
 	"golang.org/x/exp/slices"
-	"strings"
 )
 
 const (
-	CommandRegexp        = `^/(?P<command>image|deploy) (?P<sub>\w+) (?P<app>api|spa)#?(?P<tag>[\.\d\w-]+)?$`
+	CommandRegexp        = `^/(?P<command>image|deploy) (?P<sub>\w+) (?P<app>api|spa)#?(?P<tag>[\.\d\w-:]+)?$`
 	CommandHelp   string = "/help"
 	CommandImage  string = "image"
 	CommandDeploy string = "deploy"
 	ActionBuild   string = "build"
 	ActionInspect string = "inspect"
-	ActionLogs    string = "logs"
 	ActionRelease string = "release"
 	EnvStage      string = "stage"
 	EnvProd       string = "prod"
@@ -59,53 +57,41 @@ func (p *Processor) Process(message *event.Event) error {
 	switch {
 	case cmd == CommandImage && sub == ActionBuild:
 		buildCommand := build.New(app, tag, &p.config.Sdlc)
-		deployCommand := deploy.New(app, tag, &p.config.Git, EnvStage)
 
 		return p.executeCommand(
 			message,
 			buildCommand,
-			deployCommand.String(),
+			"",
 		)
 	case cmd == CommandImage && sub == ActionInspect:
 		inspectCommand := inspect.New(app, &p.config.Sdlc)
-		logsCommand := logs.New(app, &p.config.Sdlc)
 
 		return p.executeCommand(
 			message,
 			inspectCommand,
-			logsCommand.String(),
+			"",
 		)
-	case cmd == CommandImage && sub == ActionLogs:
-		logsCommand := logs.New(app, &p.config.Sdlc)
-		logsResult, _ := logsCommand.Run()
-
-		p.file(message.ChatId, logsResult)
-
-		return nil
 	case cmd == CommandImage && sub == ActionRelease:
 		if !p.isCommandAvailable(message) {
 			return nil
 		}
 
-		var finalTag string
-
-		if finalTag, err = command.ResolveFinalTag(tag); err != nil {
+		if _, err = command.ResolveFinalTag(tag); err != nil {
 			p.message(message.ChatId, err.Error(), "", "")
 			return err
 		}
 
 		releaseCommand := release.New(app, tag, &p.config.Registry)
-		deployCommand := deploy.New(app, finalTag, &p.config.Git, EnvProd)
 
 		return p.executeCommand(
 			message,
 			releaseCommand,
-			deployCommand.String(),
+			"",
 		)
 	case cmd == CommandDeploy:
 
-        p.message(message.ChatId, "Forbidden. Contact with SRE team for deployment.", "", "")
-        return nil
+		p.message(message.ChatId, "Forbidden. Contact with SRE team for deployment.", "", "")
+		return nil
 
 		deployCommand := deploy.New(app, tag, &p.config.Git, p.normalizeEnvironment(sub))
 
