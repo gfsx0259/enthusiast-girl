@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	GetSummary string = "curl -s https://%s:%s@ci.platformtests.net/job/ecommpay/job/pp/job/concept-%s/job/master/lastFailedBuild/ | xmllint --html --xpath \"string(//a[contains(@id, \\\"description-link\\\")]/@data-description)\" 2>/dev/null -"
+	GetSummary string = "curl -s https://%s:%s@ci.platformtests.net/job/pp/job/concept-%s/job/master/lastFailedBuild/ | xmllint --html --xpath \"string(//a[contains(@id, \\\"description-link\\\")]/@data-description)\" 2>/dev/null -"
 )
 
 type Command struct {

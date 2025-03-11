@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	RunJobCommand string = "java -jar /bin/jenkins-cli.jar -s https://ci.platformtests.net/ -auth %s:%s build ecommpay/pp/concept-%s/master -p FORCE_TAG=%s"
+	RunJobCommand string = "java -jar /bin/jenkins-cli.jar -s https://ci.platformtests.net/ -auth %s:%s build pp/concept-%s/master -p FORCE_TAG=%s"
 )
 
 type Command struct {
