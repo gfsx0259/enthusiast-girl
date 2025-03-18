@@ -9,9 +9,9 @@ import (
 
 const (
 	DockerLoginCommand string = "docker login %s -u=\"%s\" -p=\"%s\""
-	DockerPullCommand  string = "docker pull %s/ecommpay/pp/%s:%s"
-	DockerTagCommand   string = "docker tag %s/ecommpay/pp/%s:%s %s/ecommpay/pp/%s:%s"
-	DockerPushCommand  string = "docker push %s/ecommpay/pp/%s:%s"
+	DockerPullCommand  string = "docker pull %s/pp/%s:%s"
+	DockerTagCommand   string = "docker tag %s/pp/%s:%s %s/pp/%s:%s"
+	DockerPushCommand  string = "docker push %s/pp/%s:%s"
 )
 
 type Command struct {
@@ -38,7 +38,7 @@ func (c Command) Run() (string, error) {
 
 	if strings.Contains(c.params.Tag, ":") {
 		currentTag = c.params.Tag[:strings.IndexByte(c.params.Tag, ':')]
-		nextTag = c.params.Tag[strings.IndexByte(c.params.Tag, ':') + 1 :]
+		nextTag = c.params.Tag[strings.IndexByte(c.params.Tag, ':')+1:]
 	} else {
 		currentTag = c.params.Tag
 		nextTag, _ = command.ResolveFinalTag(c.params.Tag)
