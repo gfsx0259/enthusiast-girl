@@ -27,9 +27,7 @@ func New(application string, tag string, registry *config.Registry) Command {
 }
 
 func (c Command) Run() (string, error) {
-	registryPaths := strings.Split(c.registry.Host, "/")
-
-	if output, err := command.Execute(fmt.Sprintf(DockerLoginCommand, registryPaths[0], c.registry.User, c.registry.Password), ""); err != nil {
+	if output, err := command.Execute(fmt.Sprintf(DockerLoginCommand, c.registry.Host, c.registry.User, c.registry.Password), ""); err != nil {
 		return output, err
 	}
 
